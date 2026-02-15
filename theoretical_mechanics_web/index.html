@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Theoretical Mechanics of a 3x3 Heart</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['Epilogue', 'sans-serif'],
+              grotesk: ['Space Grotesk', 'sans-serif'],
+              mono: ['IBM Plex Mono', 'monospace'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              primary: '#db143f',      // Crimson
+              secondary: '#4169E1',    // Royal Blue
+              accent: '#FFD700',       // Gold
+              dark: '#211114',         // Dark Background
+              paper: '#FFF8F0',        // Cream
+              charcoal: '#1A1A1A',
+            },
+            boxShadow: {
+              'neo': '4px 4px 0px 0px rgba(0,0,0,1)',
+              'neo-lg': '8px 8px 0px 0px rgba(0,0,0,1)',
+              'neo-xl': '12px 12px 0px 0px rgba(0,0,0,1)',
+              'neo-primary': '4px 4px 0px 0px #db143f',
+              'neo-paper': '4px 4px 0px 0px #FFF8F0',
+            },
+            backgroundImage: {
+              'grid-pattern': "linear-gradient(to right, rgba(219, 20, 63, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(219, 20, 63, 0.1) 1px, transparent 1px)",
+            },
+            animation: {
+              'spin-slow': 'spin 12s linear infinite',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Custom Neo-Brutalist Utils */
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .brutalist-border {
+        border: 3px solid currentColor;
+      }
+      
+      /* Smooth transitions for stanza changes */
+      .fade-enter {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      .fade-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 500ms, transform 500ms;
+      }
+      .fade-exit {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .fade-exit-active {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 300ms, transform 300ms;
+      }
+
+      button {
+        transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease, background-color 220ms ease;
+      }
+
+      button:hover {
+        filter: brightness(1.04) saturate(1.08);
+      }
+
+      button:active {
+        transform: translateY(1px) scale(0.99);
+      }
+
+      @keyframes heartBeatSoft {
+        0% { transform: scale(1); }
+        35% { transform: scale(1.03); }
+        70% { transform: scale(0.995); }
+        100% { transform: scale(1); }
+      }
+
+      .romantic-pulse {
+        animation: heartBeatSoft 2.8s ease-in-out infinite;
+        transform-origin: center;
+      }
+
+      @keyframes introBloom {
+        0% { opacity: 0; transform: translateY(28px) scale(0.94); }
+        100% { opacity: 1; transform: translateY(0px) scale(1); }
+      }
+
+      @keyframes axiomsSlide {
+        0% { opacity: 0; transform: translateX(40px); }
+        100% { opacity: 1; transform: translateX(0px); }
+      }
+
+      @keyframes stanzaPop {
+        0% { opacity: 0; transform: translateY(14px) scale(0.97); }
+        100% { opacity: 1; transform: translateY(0px) scale(1); }
+      }
+
+      @keyframes qedCinematic {
+        0% { opacity: 0; transform: scale(0.98); filter: saturate(0.8); }
+        100% { opacity: 1; transform: scale(1); filter: saturate(1); }
+      }
+
+      .page-intro .scene-root {
+        animation: introBloom 700ms cubic-bezier(0.22, 0.9, 0.25, 1) both;
+      }
+
+      .page-axioms .scene-root {
+        animation: axiomsSlide 620ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+      }
+
+      .page-stanza .scene-root {
+        animation: stanzaPop 520ms cubic-bezier(0.25, 0.86, 0.35, 1) both;
+      }
+
+      .page-stanza .scene-root > * {
+        animation: stanzaPop 520ms cubic-bezier(0.25, 0.86, 0.35, 1) both;
+      }
+
+      .page-stanza .scene-root > *:nth-child(1) { animation-delay: 50ms; }
+      .page-stanza .scene-root > *:nth-child(2) { animation-delay: 120ms; }
+      .page-stanza .scene-root > *:nth-child(3) { animation-delay: 180ms; }
+
+      .page-qed .scene-root {
+        animation: qedCinematic 760ms ease both;
+      }
+
+      .scene-root h1,
+      .scene-root h2,
+      .scene-root .material-icons,
+      .scene-root .font-mono {
+        transition: transform 220ms ease, color 220ms ease, text-shadow 220ms ease, letter-spacing 220ms ease;
+      }
+
+      .scene-root h1:hover,
+      .scene-root h2:hover,
+      .scene-root .material-icons:hover,
+      .scene-root .font-mono:hover {
+        transform: translateY(-1px);
+        letter-spacing: 0.03em;
+        text-shadow: 0 0 10px rgba(219, 20, 63, 0.35);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .page-intro .scene-root,
+        .page-axioms .scene-root,
+        .page-stanza .scene-root,
+        .page-stanza .scene-root > *,
+        .page-qed .scene-root,
+        .scene-root h1,
+        .scene-root h2,
+        .scene-root .material-icons,
+        .scene-root .font-mono,
+        button,
+        .romantic-pulse {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-dark text-paper overflow-x-hidden">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

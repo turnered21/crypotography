@@ -87,6 +87,142 @@ Given ciphertext $\mathbf{C}$, we recover plaintext via:
 \mathbf{M} = \mathbf{K}^{-1} \cdot \mathbf{C}
 \end{equation}
 
+\subsection{The Encryption Process: A Worked Example}
+
+Before we decrypt the poem, let us demonstrate the \textit{encryption} process in complete detail. We will encrypt the first three words of Stanza 1: \textbf{``THE ROWS ARE''}.
+
+\subsubsection{Step 1: Text to Character Encoding}
+
+Using our encoding scheme ($A=1, B=2, \dots, Z=26$, Space$=27$):
+
+\begin{center}
+\begin{tabular}{|c|c||c|c||c|c|}
+\hline
+\textbf{Char} & \textbf{Code} & \textbf{Char} & \textbf{Code} & \textbf{Char} & \textbf{Code} \\
+\hline
+T & 20 & R & 18 & A & 1 \\
+H & 8 & O & 15 & R & 18 \\
+E & 5 & W & 23 & E & 5 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Step 2: Partition into 3D Vectors}
+
+We group consecutive characters into vectors of length 3:
+
+\begin{align}
+\mathbf{M}_1 &= \begin{pmatrix} 20 \\ 8 \\ 5 \end{pmatrix} \quad \text{(``THE'')} \\
+\mathbf{M}_2 &= \begin{pmatrix} 27 \\ 18 \\ 15 \end{pmatrix} \quad \text{(``~RO'')} \\
+\mathbf{M}_3 &= \begin{pmatrix} 23 \\ 19 \\ 27 \end{pmatrix} \quad \text{(``WS~'')}
+\end{align}
+
+\subsubsection{Step 3: Apply the Encryption Matrix}
+
+For each plaintext vector $\mathbf{M}$, we compute $\mathbf{C} = \mathbf{K} \cdot \mathbf{M}$.
+
+\textbf{Encrypting $\mathbf{M}_1 = \begin{pmatrix} 20 \\ 8 \\ 5 \end{pmatrix}$:}
+
+\begin{equation}
+\mathbf{C}_1 = \mathbf{K} \cdot \mathbf{M}_1 = \begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} 20 \\ 8 \\ 5 \end{pmatrix}
+\end{equation}
+
+Computing each entry explicitly:
+
+\textbf{Entry 1 (Row 1):}
+\begin{align}
+c_1 &= (1)(20) + (1)(8) + (1)(5) \\
+&= 20 + 8 + 5 \\
+&= 33
+\end{align}
+
+\textbf{Entry 2 (Row 2):}
+\begin{align}
+c_2 &= (0)(20) + (1)(8) + (1)(5) \\
+&= 0 + 8 + 5 \\
+&= 13
+\end{align}
+
+\textbf{Entry 3 (Row 3):}
+\begin{align}
+c_3 &= (0)(20) + (0)(8) + (1)(5) \\
+&= 0 + 0 + 5 \\
+&= 5
+\end{align}
+
+Therefore:
+\begin{equation}
+\mathbf{C}_1 = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}
+\end{equation}
+
+\textbf{Encrypting $\mathbf{M}_2 = \begin{pmatrix} 27 \\ 18 \\ 15 \end{pmatrix}$:}
+
+\begin{equation}
+\mathbf{C}_2 = \mathbf{K} \cdot \mathbf{M}_2 = \begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} 27 \\ 18 \\ 15 \end{pmatrix}
+\end{equation}
+
+\textbf{Entry 1:} $c_1 = (1)(27) + (1)(18) + (1)(15) = 27 + 18 + 15 = 60$ \\
+\textbf{Entry 2:} $c_2 = (0)(27) + (1)(18) + (1)(15) = 0 + 18 + 15 = 33$ \\
+\textbf{Entry 3:} $c_3 = (0)(27) + (0)(18) + (1)(15) = 0 + 0 + 15 = 15$
+
+\begin{equation}
+\mathbf{C}_2 = \begin{pmatrix} 60 \\ 33 \\ 15 \end{pmatrix}
+\end{equation}
+
+\textbf{Encrypting $\mathbf{M}_3 = \begin{pmatrix} 23 \\ 19 \\ 27 \end{pmatrix}$:}
+
+\begin{equation}
+\mathbf{C}_3 = \mathbf{K} \cdot \mathbf{M}_3 = \begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} 23 \\ 19 \\ 27 \end{pmatrix}
+\end{equation}
+
+\textbf{Entry 1:} $c_1 = (1)(23) + (1)(19) + (1)(27) = 23 + 19 + 27 = 69$ \\
+\textbf{Entry 2:} $c_2 = (0)(23) + (1)(19) + (1)(27) = 0 + 19 + 27 = 46$ \\
+\textbf{Entry 3:} $c_3 = (0)(23) + (0)(19) + (1)(27) = 0 + 0 + 27 = 27$
+
+\begin{equation}
+\mathbf{C}_3 = \begin{pmatrix} 69 \\ 46 \\ 27 \end{pmatrix}
+\end{equation}
+
+\subsubsection{Step 4: The Encrypted Message}
+
+The phrase \textbf{``THE ROWS ARE''} encrypts to the sequence of three ciphertext vectors:
+
+\begin{equation}
+\boxed{
+\begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\begin{pmatrix} 60 \\ 33 \\ 15 \end{pmatrix}, \quad
+\begin{pmatrix} 69 \\ 46 \\ 27 \end{pmatrix}
+}
+\end{equation}
+
+These are precisely the first three ciphertext vectors of Stanza 1 that we will decrypt in Part 1.
+
+\subsubsection{Key Observations}
+
+\begin{itemize}
+\item The upper triangular structure of $\mathbf{K}$ means each ciphertext entry depends on the current plaintext entry and all \textit{previous} entries.
+\item Entry $c_1$ is the sum of all three plaintext components: $c_1 = m_1 + m_2 + m_3$
+\item Entry $c_2$ depends only on the last two: $c_2 = m_2 + m_3$
+\item Entry $c_3$ preserves the last component unchanged: $c_3 = m_3$
+\item This creates a ``cascading'' dependency that thoroughly mixes the plaintext components.
+\item Despite this mixing, the transformation is \textit{reversible} because $\det(\mathbf{K}) = 1 \neq 0$.
+\end{itemize}
+
 \newpage
 
 \section{Part 1: Matrix Operations \& Properties (Stanza 1)}
