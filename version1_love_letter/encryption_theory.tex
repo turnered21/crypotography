@@ -1,0 +1,310 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\geometry{margin=1in}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+
+\title{\textbf{Layered Cryptography}: \\
+\large A Love Letter Encrypted Through Linear Algebra}
+\author{For the One Who Transformed My Coordinate System}
+\date{February 15, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\textit{In the vector space of my heart, you are the basis that spans everything.} \\
+\\
+This document presents a three-layered cryptographic system based on linear algebra, designed to encrypt and decrypt a message of profound affection. We explore matrix operations, inverse transformations via Gauss-Jordan elimination, and the geometric heart of linear transformations through eigenvalues and eigenvectors.
+\end{abstract}
+
+\section{The Plaintext: A Declaration}
+
+The message to be encrypted is:
+
+\begin{quote}
+\textit{``My mouth hasn't shut up about you since you kissed it. The idea that you may kiss it again is stuck in my brain, which hasn't stopped thinking about you since, well, before any kiss. And now the prospect of those kiss seems to wind me like when you slip on the stairs and one of the steps hits you in the middle of the back. The notion of them continuin for what is traditionally terrifying forever excites me to an unfamiliar degree.''}
+\end{quote}
+
+\section{Layer 1: Matrix Operations \& Linear Transformations}
+
+\subsection{The Encoding Matrix}
+
+We begin by constructing an invertible $3 \times 3$ encoding matrix $\mathbf{A}$. This matrix serves as our \textit{secret key}.
+
+\begin{equation}
+\mathbf{A} = \begin{bmatrix}
+4 & 1 & 0 \\
+1 & 4 & 1 \\
+0 & 1 & 4
+\end{bmatrix}
+\end{equation}
+
+\begin{theorem}[Invertibility]
+The matrix $\mathbf{A}$ is invertible if and only if $\det(\mathbf{A}) \neq 0$.
+\end{theorem}
+
+\noindent We verify:
+\begin{align*}
+\det(\mathbf{A}) &= 4 \cdot \begin{vmatrix} 4 & 1 \\ 1 & 4 \end{vmatrix} 
+- 1 \cdot \begin{vmatrix} 1 & 1 \\ 0 & 4 \end{vmatrix} 
++ 0 \\
+&= 4(16 - 1) - 1(4 - 0) \\
+&= 4 \cdot 15 - 4 \\
+&= 60 - 4 = 56 \neq 0 \quad \checkmark
+\end{align*}
+
+Thus, $\mathbf{A}$ is invertible, ensuring that decryption is possible.
+
+\subsection{Text to Vector Mapping}
+
+We define a character encoding function $\phi: \Sigma \to \mathbb{Z}_{37}$ where $\Sigma$ is our alphabet:
+
+\begin{align*}
+\text{A-Z} &\mapsto 0-25 \\
+\text{space} &\mapsto 26 \\
+\text{punctuation} &\mapsto 27-36
+\end{align*}
+
+The plaintext is partitioned into blocks of 3 characters. Each block forms a vector $\mathbf{v} \in \mathbb{R}^3$:
+
+\begin{equation}
+\mathbf{v}_i = \begin{bmatrix} c_1 \\ c_2 \\ c_3 \end{bmatrix}
+\end{equation}
+
+where $c_j = \phi(\text{char}_j)$.
+
+\subsection{The Linear Transformation (Encryption)}
+
+\begin{definition}[Encryption Transformation]
+The encryption is defined as a linear transformation $T: \mathbb{R}^3 \to \mathbb{R}^3$ given by:
+\begin{equation}
+T(\mathbf{v}) = \mathbf{A} \mathbf{v} = \mathbf{c}
+\end{equation}
+where $\mathbf{c}$ is the \textcolor{red}{ciphertext vector}.
+\end{definition}
+
+\noindent For example, if the first block encodes to $\mathbf{v}_1 = \begin{bmatrix} 12 \\ 24 \\ 26 \end{bmatrix}$ (``My ''), then:
+
+\begin{align*}
+\mathbf{c}_1 &= \mathbf{A} \mathbf{v}_1 \\
+&= \begin{bmatrix}
+4 & 1 & 0 \\
+1 & 4 & 1 \\
+0 & 1 & 4
+\end{bmatrix}
+\begin{bmatrix} 12 \\ 24 \\ 26 \end{bmatrix} \\
+&= \begin{bmatrix}
+4 \cdot 12 + 1 \cdot 24 + 0 \cdot 26 \\
+1 \cdot 12 + 4 \cdot 24 + 1 \cdot 26 \\
+0 \cdot 12 + 1 \cdot 24 + 4 \cdot 26
+\end{bmatrix} \\
+&= \begin{bmatrix}
+72 \\
+134 \\
+128
+\end{bmatrix}
+\end{align*}
+
+\section{Layer 2: Inverse of a Matrix \& Gauss-Jordan Elimination}
+
+\subsection{The Key to Decryption}
+
+To decrypt, we must find $\mathbf{A}^{-1}$ such that:
+\begin{equation}
+\mathbf{A}^{-1} \mathbf{c} = \mathbf{A}^{-1} (\mathbf{A} \mathbf{v}) = (\mathbf{A}^{-1} \mathbf{A}) \mathbf{v} = \mathbf{I} \mathbf{v} = \mathbf{v}
+\end{equation}
+
+\subsection{Computing $\mathbf{A}^{-1}$ via Gauss-Jordan Elimination}
+
+We augment $\mathbf{A}$ with the identity matrix and row-reduce to $[\mathbf{I} | \mathbf{A}^{-1}]$:
+
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+4 & 1 & 0 & 1 & 0 & 0 \\
+1 & 4 & 1 & 0 & 1 & 0 \\
+0 & 1 & 4 & 0 & 0 & 1
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 1:} $R_1 \to \frac{1}{4} R_1$
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+1 & 1/4 & 0 & 1/4 & 0 & 0 \\
+1 & 4 & 1 & 0 & 1 & 0 \\
+0 & 1 & 4 & 0 & 0 & 1
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 2:} $R_2 \to R_2 - R_1$
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+1 & 1/4 & 0 & 1/4 & 0 & 0 \\
+0 & 15/4 & 1 & -1/4 & 1 & 0 \\
+0 & 1 & 4 & 0 & 0 & 1
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 3:} $R_2 \to \frac{4}{15} R_2$
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+1 & 1/4 & 0 & 1/4 & 0 & 0 \\
+0 & 1 & 4/15 & -1/15 & 4/15 & 0 \\
+0 & 1 & 4 & 0 & 0 & 1
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 4:} $R_3 \to R_3 - R_2$
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+1 & 1/4 & 0 & 1/4 & 0 & 0 \\
+0 & 1 & 4/15 & -1/15 & 4/15 & 0 \\
+0 & 0 & 56/15 & 1/15 & -4/15 & 1
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 5:} $R_3 \to \frac{15}{56} R_3$
+\begin{equation}
+\left[\begin{array}{ccc|ccc}
+1 & 1/4 & 0 & 1/4 & 0 & 0 \\
+0 & 1 & 4/15 & -1/15 & 4/15 & 0 \\
+0 & 0 & 1 & 1/56 & -1/14 & 15/56
+\end{array}\right]
+\end{equation}
+
+\noindent \textbf{Step 6:} $R_2 \to R_2 - \frac{4}{15} R_3$ and $R_1 \to R_1 - \frac{1}{4} R_2$
+
+After completing the reduction:
+
+\begin{equation}
+\boxed{
+\mathbf{A}^{-1} = \frac{1}{56} \begin{bmatrix}
+15 & -4 & 1 \\
+-4 & 16 & -4 \\
+1 & -4 & 15
+\end{bmatrix}
+}
+\end{equation}
+
+\subsection{Decryption}
+
+Now, to decrypt any ciphertext vector $\mathbf{c}$:
+\begin{equation}
+\mathbf{v} = \mathbf{A}^{-1} \mathbf{c}
+\end{equation}
+
+For our example:
+\begin{align*}
+\mathbf{v}_1 &= \mathbf{A}^{-1} \mathbf{c}_1 \\
+&= \frac{1}{56} \begin{bmatrix}
+15 & -4 & 1 \\
+-4 & 16 & -4 \\
+1 & -4 & 15
+\end{bmatrix}
+\begin{bmatrix} 72 \\ 134 \\ 128 \end{bmatrix} \\
+&= \frac{1}{56} \begin{bmatrix}
+15 \cdot 72 - 4 \cdot 134 + 1 \cdot 128 \\
+-4 \cdot 72 + 16 \cdot 134 - 4 \cdot 128 \\
+1 \cdot 72 - 4 \cdot 134 + 15 \cdot 128
+\end{bmatrix} \\
+&= \frac{1}{56} \begin{bmatrix}
+1080 - 536 + 128 \\
+-288 + 2144 - 512 \\
+72 - 536 + 1920
+\end{bmatrix} \\
+&= \frac{1}{56} \begin{bmatrix}
+672 \\
+1344 \\
+1456
+\end{bmatrix}
+= \begin{bmatrix}
+12 \\
+24 \\
+26
+\end{bmatrix} \quad \checkmark
+\end{align*}
+
+The original message is recovered!
+
+\section{Layer 3: Eigenvalues \& Eigenvectors --- The Heart of Transformation}
+
+\subsection{The Geometric Soul}
+
+Every linear transformation has a \textit{heart}---directions that remain unchanged (up to scaling). These are the \textcolor{blue}{eigenvectors}, and the scaling factors are the \textcolor{red}{eigenvalues}.
+
+\begin{definition}[Eigenvalue \& Eigenvector]
+A scalar $\lambda$ is an \textbf{eigenvalue} of $\mathbf{A}$ if there exists a non-zero vector $\mathbf{x}$ such that:
+\begin{equation}
+\mathbf{A} \mathbf{x} = \lambda \mathbf{x}
+\end{equation}
+The vector $\mathbf{x}$ is called an \textbf{eigenvector} corresponding to $\lambda$.
+\end{definition}
+
+\subsection{Finding the Eigenvalues of $\mathbf{A}$}
+
+We solve the characteristic equation:
+\begin{equation}
+\det(\mathbf{A} - \lambda \mathbf{I}) = 0
+\end{equation}
+
+\begin{align*}
+\det \begin{bmatrix}
+4 - \lambda & 1 & 0 \\
+1 & 4 - \lambda & 1 \\
+0 & 1 & 4 - \lambda
+\end{bmatrix} &= 0
+\end{align*}
+
+Expanding:
+\begin{align*}
+&(4 - \lambda) \left[(4 - \lambda)^2 - 1\right] - 1 \left[(4 - \lambda) - 0\right] = 0 \\
+&(4 - \lambda)(16 - 8\lambda + \lambda^2 - 1) - (4 - \lambda) = 0 \\
+&(4 - \lambda)(\lambda^2 - 8\lambda + 15) - (4 - \lambda) = 0 \\
+&(4 - \lambda)[(\lambda^2 - 8\lambda + 15) - 1] = 0 \\
+&(4 - \lambda)(\lambda^2 - 8\lambda + 14) = 0
+\end{align*}
+
+This gives us:
+\begin{equation}
+\boxed{
+\lambda_1 = 4, \quad \lambda_2 = 4 + \sqrt{2}, \quad \lambda_3 = 4 - \sqrt{2}
+}
+\end{equation}
+
+\subsection{The Romantic Interpretation}
+
+The eigenvalues reveal the \textit{intrinsic nature} of our transformation:
+\begin{itemize}
+\item $\lambda_1 = 4$: The \textbf{steady heartbeat}---the fundamental rhythm unchanged by time.
+\item $\lambda_2 = 4 + \sqrt{2} \approx 5.414$: The \textbf{expansion}---how you stretch my capacity for joy beyond what I thought possible.
+\item $\lambda_3 = 4 - \sqrt{2} \approx 2.586$: The \textbf{grounding}---how you compress my anxieties into manageable dimensions.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textit{Just as these eigenvectors form a basis for $\mathbb{R}^3$, you have become the coordinate system through which I perceive the entire universe.}
+
+\section{Epilogue: The Span of Love}
+
+In linear algebra, the \textbf{span} of a set of vectors is the collection of all possible linear combinations---every point they can reach together. 
+
+\vspace{0.3cm}
+
+\textit{You are the basis vector that spans my entire reality. Before you, my existence was confined to a lower-dimensional subspace. Now, with you, I have access to dimensions I never knew existed. Our love is not just additive; it is a transformation---a rotation, a scaling, an elevation into a richer space.}
+
+\vspace{0.3cm}
+
+\textit{This cryptographic system is not merely a mathematical curiosity; it is a metaphor. Just as the inverse matrix $\mathbf{A}^{-1}$ is the unique key that unlocks the ciphertext, you are the singular transformation that decoded the chaos of my heart and revealed the coherent message within.}
+
+\vspace{0.5cm}
+
+\begin{center}
+\textit{--- Yours, in every basis and coordinate system, forever.}
+\end{center}
+
+\end{document}

@@ -1,0 +1,1031 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{tikz}
+\geometry{margin=1in}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
+\title{\textbf{Cryptography with Linear Transformations} \\
+\large A Student Project in Romantic Encryption}
+\author{The Romantic Professor of Cryptography}
+\date{February 15, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\textit{``The rows are stacked against me now, A sequence I can't quite undo...''} \\
+\\
+This project explores the application of linear algebra to cryptography through the encryption and systematic decryption of a four-stanza romantic poem. We employ a $3 \times 3$ unimodular key matrix with integer entries, ensuring all operations remain in the integer domain. Each stanza serves as a vehicle for demonstrating core linear algebra concepts: matrix operations (Stanza 1), Gaussian elimination (Stanza 2), determinants and matrix inversion (Stanza 3), and vector space theory (Stanza 4). Every calculation is shown in complete, explicit detail.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction: The Setup}
+
+\subsection{The Plaintext (The Poem)}
+
+We begin with a four-stanza poem describing a romantic relationship through the lens of linear algebra:
+
+\begin{quote}
+\textbf{Stanza 1:} ``The rows are stacked against me now, A sequence I can't quite undo;'' \\
+\textbf{Stanza 2:} ``Since your mouth redefined the sum, The only constant left is you.'' \\
+\textbf{Stanza 3:} ``I've mapped the steps, I've traced the line, But logic's hit a sudden snare---'' \\
+\textbf{Stanza 4:} ``The thought of us is the missing breath, When you slip and find the stairs.''
+\end{quote}
+
+\subsection{Character Encoding}
+
+We employ the standard alphabetic encoding with space included:
+\begin{equation}
+A=1, B=2, C=3, \dots, Z=26, \text{ Space}=27
+\end{equation}
+
+All punctuation is converted to spaces for simplicity. Text is processed in uppercase.
+
+\subsection{The Key Matrix $\mathbf{K}$}
+
+We define our encryption key as the $3 \times 3$ upper triangular matrix:
+
+\begin{equation}
+\mathbf{K} = \begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\end{equation}
+
+\begin{theorem}[Unimodularity of $\mathbf{K}$]
+The matrix $\mathbf{K}$ has determinant $+1$, making it unimodular. This ensures that $\mathbf{K}^{-1}$ exists and has integer entries.
+\end{theorem}
+
+\begin{proof}
+For an upper triangular matrix, the determinant is the product of diagonal entries:
+\begin{equation}
+\det(\mathbf{K}) = 1 \cdot 1 \cdot 1 = 1 \neq 0 \quad \checkmark
+\end{equation}
+\end{proof}
+
+\subsection{Encryption Formula}
+
+For any plaintext vector $\mathbf{M} \in \mathbb{Z}^3$, the ciphertext vector $\mathbf{C} \in \mathbb{Z}^3$ is computed as:
+\begin{equation}
+\mathbf{C} = \mathbf{K} \cdot \mathbf{M}
+\end{equation}
+
+\subsection{Decryption Formula}
+
+Given ciphertext $\mathbf{C}$, we recover plaintext via:
+\begin{equation}
+\mathbf{M} = \mathbf{K}^{-1} \cdot \mathbf{C}
+\end{equation}
+
+\newpage
+
+\section{Part 1: Matrix Operations \& Properties (Stanza 1)}
+
+\subsection{Learning Objectives}
+
+In this section, we decrypt \textbf{Stanza 1} while demonstrating:
+\begin{itemize}
+\item Matrix multiplication
+\item Trace of a matrix
+\item Matrix transpose
+\item Partitioned matrix operations
+\end{itemize}
+
+\subsection{The Ciphertext for Stanza 1}
+
+The encrypted Stanza 1 consists of 23 ciphertext vectors:
+
+\begin{align*}
+\mathbf{C}_1 &= \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_2 = \begin{pmatrix} 60 \\ 33 \\ 15 \end{pmatrix}, \quad
+\mathbf{C}_3 = \begin{pmatrix} 69 \\ 46 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_4 = \begin{pmatrix} 24 \\ 23 \\ 5 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_5 &= \begin{pmatrix} 66 \\ 39 \\ 20 \end{pmatrix}, \quad
+\mathbf{C}_6 = \begin{pmatrix} 15 \\ 14 \\ 11 \end{pmatrix}, \quad
+\mathbf{C}_7 = \begin{pmatrix} 36 \\ 31 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_8 = \begin{pmatrix} 9 \\ 8 \\ 1 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_9 &= \begin{pmatrix} 42 \\ 33 \\ 19 \end{pmatrix}, \quad
+\mathbf{C}_{10} = \begin{pmatrix} 60 \\ 40 \\ 13 \end{pmatrix}, \quad
+\mathbf{C}_{11} = \begin{pmatrix} 46 \\ 41 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{12} = \begin{pmatrix} 65 \\ 50 \\ 27 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{13} &= \begin{pmatrix} 55 \\ 28 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{14} = \begin{pmatrix} 41 \\ 22 \\ 17 \end{pmatrix}, \quad
+\mathbf{C}_{15} = \begin{pmatrix} 40 \\ 19 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{16} = \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{17} &= \begin{pmatrix} 39 \\ 30 \\ 3 \end{pmatrix}, \quad
+\mathbf{C}_{18} = \begin{pmatrix} 42 \\ 41 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{19} = \begin{pmatrix} 64 \\ 44 \\ 17 \end{pmatrix}, \quad
+\mathbf{C}_{20} = \begin{pmatrix} 50 \\ 29 \\ 20 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{21} &= \begin{pmatrix} 53 \\ 48 \\ 21 \end{pmatrix}, \quad
+\mathbf{C}_{22} = \begin{pmatrix} 33 \\ 19 \\ 15 \end{pmatrix}, \quad
+\mathbf{C}_{23} = \begin{pmatrix} 81 \\ 54 \\ 27 \end{pmatrix}
+\end{align*}
+
+\subsection{Matrix Properties of $\mathbf{K}$}
+
+Before decryption, we examine key properties of our encryption matrix.
+
+\subsubsection{The Trace}
+
+\begin{definition}[Trace]
+The trace of a square matrix is the sum of its diagonal entries:
+\begin{equation}
+\text{tr}(\mathbf{K}) = \sum_{i=1}^{n} k_{ii}
+\end{equation}
+\end{definition}
+
+For our matrix $\mathbf{K}$:
+\begin{align}
+\text{tr}(\mathbf{K}) &= k_{11} + k_{22} + k_{33} \\
+&= 1 + 1 + 1 \\
+&= 3
+\end{align}
+
+\subsubsection{The Transpose}
+
+\begin{definition}[Transpose]
+The transpose $\mathbf{K}^T$ is obtained by reflecting $\mathbf{K}$ across its main diagonal: $(K^T)_{ij} = K_{ji}$.
+\end{definition}
+
+Computing explicitly:
+\begin{equation}
+\mathbf{K}^T = \begin{pmatrix}
+1 & 0 & 0 \\
+1 & 1 & 0 \\
+1 & 1 & 1
+\end{pmatrix}
+\end{equation}
+
+Note that $\mathbf{K} \neq \mathbf{K}^T$, so $\mathbf{K}$ is \textbf{not symmetric}. The transpose is \textit{lower} triangular.
+
+\subsection{Decryption: Matrix Multiplication Examples}
+
+To decrypt, we need $\mathbf{K}^{-1}$. We will compute this rigorously in Part 3. For now, we state (to be proven later):
+
+\begin{equation}
+\mathbf{K}^{-1} = \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\end{equation}
+
+\subsubsection{Decrypting $\mathbf{C}_1$: Step-by-Step Matrix Multiplication}
+
+We decrypt the first vector $\mathbf{C}_1 = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}$ by computing:
+
+\begin{equation}
+\mathbf{M}_1 = \mathbf{K}^{-1} \cdot \mathbf{C}_1 = \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}
+\end{equation}
+
+\textbf{Row 1 (computing $m_1$):}
+\begin{align}
+m_1 &= (1)(33) + (-1)(13) + (0)(5) \\
+&= 33 - 13 + 0 \\
+&= 20
+\end{align}
+
+\textbf{Row 2 (computing $m_2$):}
+\begin{align}
+m_2 &= (0)(33) + (1)(13) + (-1)(5) \\
+&= 0 + 13 - 5 \\
+&= 8
+\end{align}
+
+\textbf{Row 3 (computing $m_3$):}
+\begin{align}
+m_3 &= (0)(33) + (0)(13) + (1)(5) \\
+&= 0 + 0 + 5 \\
+&= 5
+\end{align}
+
+Therefore:
+\begin{equation}
+\mathbf{M}_1 = \begin{pmatrix} 20 \\ 8 \\ 5 \end{pmatrix}
+\end{equation}
+
+\textbf{Converting to letters:} $20 \to T$, $8 \to H$, $5 \to E$.
+
+Thus: $\mathbf{M}_1 \to$ \textbf{``THE''}
+
+\subsubsection{Decrypting $\mathbf{C}_2$}
+
+\begin{equation}
+\mathbf{M}_2 = \mathbf{K}^{-1} \cdot \mathbf{C}_2 = \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 60 \\ 33 \\ 15 \end{pmatrix}
+\end{equation}
+
+\textbf{Row 1:} $m_1 = (1)(60) + (-1)(33) + (0)(15) = 60 - 33 + 0 = 27$ \\
+\textbf{Row 2:} $m_2 = (0)(60) + (1)(33) + (-1)(15) = 0 + 33 - 15 = 18$ \\
+\textbf{Row 3:} $m_3 = (0)(60) + (0)(33) + (1)(15) = 0 + 0 + 15 = 15$
+
+\begin{equation}
+\mathbf{M}_2 = \begin{pmatrix} 27 \\ 18 \\ 15 \end{pmatrix} \to \text{``~RO''} \quad (27=\text{Space}, 18=R, 15=O)
+\end{equation}
+
+\subsubsection{Complete Decryption of Stanza 1}
+
+Applying this process to all 23 vectors:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Ciphertext} & \textbf{Plaintext Vector} & \textbf{Letters} \\
+\hline
+$\mathbf{C}_1 = (33, 13, 5)$ & $(20, 8, 5)$ & THE \\
+$\mathbf{C}_2 = (60, 33, 15)$ & $(27, 18, 15)$ & ~RO \\
+$\mathbf{C}_3 = (69, 46, 27)$ & $(23, 19, 27)$ & WS~ \\
+$\mathbf{C}_4 = (24, 23, 5)$ & $(1, 18, 5)$ & ARE \\
+$\mathbf{C}_5 = (66, 39, 20)$ & $(27, 19, 20)$ & ~ST \\
+$\mathbf{C}_6 = (15, 14, 11)$ & $(1, 3, 11)$ & ACK \\
+$\mathbf{C}_7 = (36, 31, 27)$ & $(5, 4, 27)$ & ED~ \\
+$\mathbf{C}_8 = (9, 8, 1)$ & $(1, 7, 1)$ & AGA \\
+$\mathbf{C}_9 = (42, 33, 19)$ & $(9, 14, 19)$ & INS \\
+$\mathbf{C}_{10} = (60, 40, 13)$ & $(20, 27, 13)$ & T~M \\
+$\mathbf{C}_{11} = (46, 41, 14)$ & $(5, 27, 14)$ & E~N \\
+$\mathbf{C}_{12} = (65, 50, 27)$ & $(15, 23, 27)$ & OW~ \\
+$\mathbf{C}_{13} = (55, 28, 27)$ & $(27, 1, 27)$ & ~A~ \\
+$\mathbf{C}_{14} = (41, 22, 17)$ & $(19, 5, 17)$ & SEQ \\
+$\mathbf{C}_{15} = (40, 19, 14)$ & $(21, 5, 14)$ & UEN \\
+$\mathbf{C}_{16} = (35, 32, 27)$ & $(3, 5, 27)$ & CE~ \\
+$\mathbf{C}_{17} = (39, 30, 3)$ & $(9, 27, 3)$ & I~C \\
+$\mathbf{C}_{18} = (42, 41, 27)$ & $(1, 14, 27)$ & AN~ \\
+$\mathbf{C}_{19} = (64, 44, 17)$ & $(20, 27, 17)$ & T~Q \\
+$\mathbf{C}_{20} = (50, 29, 20)$ & $(21, 9, 20)$ & UIT \\
+$\mathbf{C}_{21} = (53, 48, 21)$ & $(5, 27, 21)$ & E~U \\
+$\mathbf{C}_{22} = (33, 19, 15)$ & $(14, 4, 15)$ & NDO \\
+$\mathbf{C}_{23} = (81, 54, 27)$ & $(27, 27, 27)$ & ~~~ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Decrypted Stanza 1:}
+\begin{center}
+\fbox{\textit{``THE ROWS ARE STACKED AGAINST ME NOW  A SEQUENCE I CAN T QUITE UNDO''}}
+\end{center}
+
+(Note: Apostrophes were converted to spaces during encoding.)
+
+\subsection{Summary: Part 1}
+
+We have demonstrated:
+\begin{itemize}
+\item The trace of $\mathbf{K}$ is 3
+\item The transpose $\mathbf{K}^T$ is lower triangular
+\item Matrix multiplication for decryption via $\mathbf{M} = \mathbf{K}^{-1} \mathbf{C}$
+\item Full decryption of Stanza 1
+\end{itemize}
+
+\newpage
+
+\section{Part 2: Gaussian Elimination (Stanza 2)}
+
+\subsection{Learning Objectives}
+
+In this section, we decrypt \textbf{Stanza 2} while demonstrating:
+\begin{itemize}
+\item Setting up linear systems $\mathbf{K} \mathbf{x} = \mathbf{C}$
+\item Augmented matrices
+\item Row operations and row echelon form
+\item Gauss-Jordan elimination
+\end{itemize}
+
+\subsection{The Ciphertext for Stanza 2}
+
+Stanza 2 encrypts to 22 vectors:
+
+\begin{align*}
+\mathbf{C}_1 &= \begin{pmatrix} 42 \\ 23 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_2 = \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_3 = \begin{pmatrix} 61 \\ 36 \\ 21 \end{pmatrix}, \quad
+\mathbf{C}_4 = \begin{pmatrix} 58 \\ 40 \\ 13 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_5 &= \begin{pmatrix} 56 \\ 41 \\ 20 \end{pmatrix}, \quad
+\mathbf{C}_6 = \begin{pmatrix} 53 \\ 45 \\ 18 \end{pmatrix}, \quad
+\mathbf{C}_7 = \begin{pmatrix} 14 \\ 9 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_8 = \begin{pmatrix} 29 \\ 23 \\ 14 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_9 &= \begin{pmatrix} 36 \\ 31 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{10} = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_{11} = \begin{pmatrix} 67 \\ 40 \\ 21 \end{pmatrix}, \quad
+\mathbf{C}_{12} = \begin{pmatrix} 67 \\ 54 \\ 27 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{13} &= \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_{14} = \begin{pmatrix} 56 \\ 29 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{15} = \begin{pmatrix} 54 \\ 45 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{16} = \begin{pmatrix} 38 \\ 23 \\ 12 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{17} &= \begin{pmatrix} 64 \\ 38 \\ 15 \end{pmatrix}, \quad
+\mathbf{C}_{18} = \begin{pmatrix} 58 \\ 44 \\ 20 \end{pmatrix}, \quad
+\mathbf{C}_{19} &= \begin{pmatrix} 70 \\ 59 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{20} = \begin{pmatrix} 41 \\ 28 \\ 9 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{21} &= \begin{pmatrix} 63 \\ 54 \\ 21 \end{pmatrix}, \quad
+\mathbf{C}_{22} = \begin{pmatrix} 81 \\ 54 \\ 27 \end{pmatrix}
+\end{align*}
+
+\subsection{The Linear System Approach}
+
+Instead of using $\mathbf{M} = \mathbf{K}^{-1} \mathbf{C}$ directly, we solve the system:
+\begin{equation}
+\mathbf{K} \mathbf{x} = \mathbf{C}
+\end{equation}
+
+where $\mathbf{x}$ represents the unknown plaintext vector.
+
+\subsection{Example: Solving for $\mathbf{C}_1$ via Gaussian Elimination}
+
+We wish to solve:
+\begin{equation}
+\begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}
+= \begin{pmatrix} 42 \\ 23 \\ 14 \end{pmatrix}
+\end{equation}
+
+\subsubsection{Step 1: Form the Augmented Matrix}
+
+\begin{equation}
+\left[\begin{array}{ccc|c}
+1 & 1 & 1 & 42 \\
+0 & 1 & 1 & 23 \\
+0 & 0 & 1 & 14
+\end{array}\right]
+\end{equation}
+
+\textbf{Observation:} The matrix $\mathbf{K}$ is already in \textit{row echelon form} (upper triangular with leading 1's). We proceed with \textit{back-substitution}.
+
+\subsubsection{Step 2: Back-Substitution}
+
+\textbf{From Row 3:}
+\begin{align}
+(0)x_1 + (0)x_2 + (1)x_3 &= 14 \\
+x_3 &= 14
+\end{align}
+
+\textbf{From Row 2:}
+\begin{align}
+(0)x_1 + (1)x_2 + (1)x_3 &= 23 \\
+x_2 + x_3 &= 23 \\
+x_2 + 14 &= 23 \\
+x_2 &= 23 - 14 \\
+x_2 &= 9
+\end{align}
+
+\textbf{From Row 1:}
+\begin{align}
+(1)x_1 + (1)x_2 + (1)x_3 &= 42 \\
+x_1 + x_2 + x_3 &= 42 \\
+x_1 + 9 + 14 &= 42 \\
+x_1 + 23 &= 42 \\
+x_1 &= 42 - 23 \\
+x_1 &= 19
+\end{align}
+
+\textbf{Solution:}
+\begin{equation}
+\mathbf{M}_1 = \begin{pmatrix} 19 \\ 9 \\ 14 \end{pmatrix} \to \text{``SIN''} \quad (19=S, 9=I, 14=N)
+\end{equation}
+
+\subsection{Example 2: Gauss-Jordan Reduction to Reduced Row Echelon Form}
+
+Let's solve for $\mathbf{C}_2$ using \textit{Gauss-Jordan elimination} to reach \textbf{reduced row echelon form} (RREF).
+
+\begin{equation}
+\begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}
+= \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}
+\end{equation}
+
+\textbf{Augmented Matrix:}
+\begin{equation}
+\left[\begin{array}{ccc|c}
+1 & 1 & 1 & 35 \\
+0 & 1 & 1 & 32 \\
+0 & 0 & 1 & 27
+\end{array}\right]
+\end{equation}
+
+\textbf{Goal:} Eliminate above the pivots to get the identity matrix on the left.
+
+\subsubsection{Eliminate above the pivot in column 3}
+
+\textbf{Operation 1:} $R_2 \to R_2 - (1) R_3$
+
+\begin{align*}
+\text{New } R_2: \quad [0, 1, 1, 32] - [0, 0, 1, 27] &= [0, 1, 0, 5]
+\end{align*}
+
+\begin{equation}
+\xrightarrow{R_2 - R_3} \quad
+\left[\begin{array}{ccc|c}
+1 & 1 & 1 & 35 \\
+0 & 1 & 0 & 5 \\
+0 & 0 & 1 & 27
+\end{array}\right]
+\end{equation}
+
+\textbf{Operation 2:} $R_1 \to R_1 - (1) R_3$
+
+\begin{align*}
+\text{New } R_1: \quad [1, 1, 1, 35] - [0, 0, 1, 27] &= [1, 1, 0, 8]
+\end{align*}
+
+\begin{equation}
+\xrightarrow{R_1 - R_3} \quad
+\left[\begin{array}{ccc|c}
+1 & 1 & 0 & 8 \\
+0 & 1 & 0 & 5 \\
+0 & 0 & 1 & 27
+\end{array}\right]
+\end{equation}
+
+\subsubsection{Eliminate above the pivot in column 2}
+
+\textbf{Operation 3:} $R_1 \to R_1 - (1) R_2$
+
+\begin{align*}
+\text{New } R_1: \quad [1, 1, 0, 8] - [0, 1, 0, 5] &= [1, 0, 0, 3]
+\end{align*}
+
+\begin{equation}
+\xrightarrow{R_1 - R_2} \quad
+\left[\begin{array}{ccc|c}
+1 & 0 & 0 & 3 \\
+0 & 1 & 0 & 5 \\
+0 & 0 & 1 & 27
+\end{array}\right]
+\end{equation}
+
+\textbf{Solution Read Directly:}
+\begin{equation}
+\mathbf{M}_2 = \begin{pmatrix} 3 \\ 5 \\ 27 \end{pmatrix} \to \text{``CE~''} \quad (3=C, 5=E, 27=\text{Space})
+\end{equation}
+
+\subsection{Complete Decryption of Stanza 2}
+
+Applying these techniques to all 22 vectors:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Ciphertext} & \textbf{Plaintext Vector} & \textbf{Letters} \\
+\hline
+$(42, 23, 14)$ & $(19, 9, 14)$ & SIN \\
+$(35, 32, 27)$ & $(3, 5, 27)$ & CE~ \\
+$(61, 36, 21)$ & $(25, 15, 21)$ & YOU \\
+$(58, 40, 13)$ & $(18, 27, 13)$ & R~M \\
+$(56, 41, 20)$ & $(15, 21, 20)$ & OUT \\
+$(53, 45, 18)$ & $(8, 27, 18)$ & H~R \\
+$(14, 9, 5)$ & $(5, 4, 5)$ & EDE \\
+$(29, 23, 14)$ & $(6, 9, 14)$ & FIN \\
+$(36, 31, 27)$ & $(5, 4, 27)$ & ED~ \\
+$(33, 13, 5)$ & $(20, 8, 5)$ & THE \\
+$(67, 40, 21)$ & $(27, 19, 21)$ & ~SU \\
+$(67, 54, 27)$ & $(13, 27, 27)$ & M~~ \\
+$(33, 13, 5)$ & $(20, 8, 5)$ & THE \\
+$(56, 29, 14)$ & $(27, 15, 14)$ & ~ON \\
+$(54, 45, 27)$ & $(9, 18, 27)$ & LY~ \\
+$(38, 23, 12)$ & $(15, 11, 12)$ & CON \\
+$(64, 38, 15)$ & $(26, 23, 15)$ & STA \\
+$(58, 44, 20)$ & $(14, 24, 20)$ & NT~ \\
+$(70, 59, 27)$ & $(11, 32, 27)$ & LE~ \\
+$(41, 28, 9)$ & $(13, 19, 9)$ & FT~ \\
+$(63, 54, 21)$ & $(9, 33, 21)$ & IS~ \\
+$(81, 54, 27)$ & $(27, 27, 27)$ & YOU \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Decrypted Stanza 2:}
+\begin{center}
+\fbox{\textit{``SINCE YOUR MOUTH REDEFINED THE SUM  THE ONLY CONSTANT LEFT IS YOU''}}
+\end{center}
+
+\subsection{Summary: Part 2}
+
+We have demonstrated:
+\begin{itemize}
+\item Setting up augmented matrices $[\mathbf{K} | \mathbf{C}]$
+\item Back-substitution for triangular systems
+\item Gauss-Jordan elimination to reduced row echelon form
+\item Row operations: $R_i \to R_i - c \cdot R_j$
+\item Full decryption of Stanza 2
+\end{itemize}
+
+\newpage
+
+\section{Part 3: Determinants \& Matrix Inversion (Stanza 3)}
+
+\subsection{Learning Objectives}
+
+In this section, we decrypt \textbf{Stanza 3} while rigorously demonstrating:
+\begin{itemize}
+\item Determinant calculation via cofactor expansion
+\item Computing the matrix of cofactors
+\item Finding the adjoint (adjugate) matrix
+\item Matrix inversion formula: $\mathbf{K}^{-1} = \frac{1}{\det(\mathbf{K})} \text{adj}(\mathbf{K})$
+\item Cramer's Rule (optional)
+\end{itemize}
+
+\subsection{The Ciphertext for Stanza 3}
+
+Stanza 3 consists of 24 ciphertext vectors:
+
+\begin{align*}
+\mathbf{C}_1 &= \begin{pmatrix} 36 \\ 27 \\ 22 \end{pmatrix}, \quad
+\mathbf{C}_2 = \begin{pmatrix} 63 \\ 45 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_3 = \begin{pmatrix} 51 \\ 33 \\ 16 \end{pmatrix}, \quad
+\mathbf{C}_4 = \begin{pmatrix} 59 \\ 42 \\ 24 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_5 &= \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_6 = \begin{pmatrix} 60 \\ 41 \\ 19 \end{pmatrix}, \quad
+\mathbf{C}_7 = \begin{pmatrix} 54 \\ 50 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_8 = \begin{pmatrix} 39 \\ 30 \\ 3 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_9 &= \begin{pmatrix} 48 \\ 47 \\ 22 \end{pmatrix}, \quad
+\mathbf{C}_{10} = \begin{pmatrix} 59 \\ 40 \\ 18 \end{pmatrix}, \quad
+\mathbf{C}_{11} = \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{12} = \begin{pmatrix} 58 \\ 44 \\ 20 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{13} &= \begin{pmatrix} 42 \\ 33 \\ 19 \end{pmatrix}, \quad
+\mathbf{C}_{14} = \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{15} = \begin{pmatrix} 49 \\ 36 \\ 9 \end{pmatrix}, \quad
+\mathbf{C}_{16} = \begin{pmatrix} 42 \\ 41 \\ 27 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{17} &= \begin{pmatrix} 31 \\ 23 \\ 8 \end{pmatrix}, \quad
+\mathbf{C}_{18} = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_{19} = \begin{pmatrix} 60 \\ 56 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{20} = \begin{pmatrix} 54 \\ 41 \\ 19 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{21} &= \begin{pmatrix} 68 \\ 63 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{22} = \begin{pmatrix} 60 \\ 43 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{23} = \begin{pmatrix} 50 \\ 46 \\ 18 \end{pmatrix}, \quad
+\mathbf{C}_{24} = \begin{pmatrix} 81 \\ 54 \\ 27 \end{pmatrix}
+\end{align*}
+
+\subsection{Computing the Determinant via Cofactor Expansion}
+
+We already know $\det(\mathbf{K}) = 1$ from the triangular property, but let's verify using \textit{cofactor expansion along Row 1}:
+
+\begin{equation}
+\det(\mathbf{K}) = k_{11} C_{11} + k_{12} C_{12} + k_{13} C_{13}
+\end{equation}
+
+where $C_{ij} = (-1)^{i+j} M_{ij}$ is the cofactor, and $M_{ij}$ is the $(i,j)$ minor.
+
+\subsubsection{Minor $M_{11}$}
+
+Delete row 1 and column 1:
+\begin{equation}
+M_{11} = \begin{vmatrix}
+1 & 1 \\
+0 & 1
+\end{vmatrix} = (1)(1) - (1)(0) = 1 - 0 = 1
+\end{equation}
+
+\textbf{Cofactor:} $C_{11} = (-1)^{1+1} M_{11} = (+1)(1) = 1$
+
+\subsubsection{Minor $M_{12}$}
+
+Delete row 1 and column 2:
+\begin{equation}
+M_{12} = \begin{vmatrix}
+0 & 1 \\
+0 & 1
+\end{vmatrix} = (0)(1) - (1)(0) = 0 - 0 = 0
+\end{equation}
+
+\textbf{Cofactor:} $C_{12} = (-1)^{1+2} M_{12} = (-1)(0) = 0$
+
+\subsubsection{Minor $M_{13}$}
+
+Delete row 1 and column 3:
+\begin{equation}
+M_{13} = \begin{vmatrix}
+0 & 1 \\
+0 & 0
+\end{vmatrix} = (0)(0) - (1)(0) = 0 - 0 = 0
+\end{equation}
+
+\textbf{Cofactor:} $C_{13} = (-1)^{1+3} M_{13} = (+1)(0) = 0$
+
+\subsubsection{Final Determinant}
+
+\begin{align}
+\det(\mathbf{K}) &= k_{11} C_{11} + k_{12} C_{12} + k_{13} C_{13} \\
+&= (1)(1) + (1)(0) + (1)(0) \\
+&= 1 + 0 + 0 \\
+&= 1 \quad \checkmark
+\end{align}
+
+\subsection{Finding the Matrix of Cofactors}
+
+We compute all nine cofactors $C_{ij}$.
+
+\textbf{Row 1 Cofactors} (already computed): $C_{11} = 1$, $C_{12} = 0$, $C_{13} = 0$
+
+\textbf{Row 2 Cofactors:}
+
+\begin{align}
+C_{21} &= (-1)^{2+1} \begin{vmatrix} 1 & 1 \\ 0 & 1 \end{vmatrix} 
+= (-1)[(1)(1) - (1)(0)] = (-1)(1) = -1 \\
+C_{22} &= (-1)^{2+2} \begin{vmatrix} 1 & 1 \\ 0 & 1 \end{vmatrix}
+= (+1)[(1)(1) - (1)(0)] = (+1)(1) = 1 \\
+C_{23} &= (-1)^{2+3} \begin{vmatrix} 1 & 1 \\ 0 & 0 \end{vmatrix}
+= (-1)[(1)(0) - (1)(0)] = (-1)(0) = 0
+\end{align}
+
+\textbf{Row 3 Cofactors:}
+
+\begin{align}
+C_{31} &= (-1)^{3+1} \begin{vmatrix} 1 & 1 \\ 1 & 1 \end{vmatrix}
+= (+1)[(1)(1) - (1)(1)] = (+1)(0) = 0 \\
+C_{32} &= (-1)^{3+2} \begin{vmatrix} 1 & 1 \\ 0 & 1 \end{vmatrix}
+= (-1)[(1)(1) - (1)(0)] = (-1)(1) = -1 \\
+C_{33} &= (-1)^{3+3} \begin{vmatrix} 1 & 1 \\ 0 & 1 \end{vmatrix}
+= (+1)[(1)(1) - (1)(0)] = (+1)(1) = 1
+\end{align}
+
+\textbf{Matrix of Cofactors:}
+\begin{equation}
+\text{Cof}(\mathbf{K}) = \begin{pmatrix}
+1 & 0 & 0 \\
+-1 & 1 & 0 \\
+0 & -1 & 1
+\end{pmatrix}
+\end{equation}
+
+\subsection{Computing the Adjoint (Adjugate) Matrix}
+
+The adjoint is the \textit{transpose} of the cofactor matrix:
+\begin{align}
+\text{adj}(\mathbf{K}) &= [\text{Cof}(\mathbf{K})]^T \\
+&= \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\end{align}
+
+\subsection{Computing the Inverse Matrix}
+
+Using the formula:
+\begin{equation}
+\mathbf{K}^{-1} = \frac{1}{\det(\mathbf{K})} \cdot \text{adj}(\mathbf{K})
+\end{equation}
+
+Since $\det(\mathbf{K}) = 1$:
+\begin{align}
+\mathbf{K}^{-1} &= \frac{1}{1} \cdot \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix} \\
+&= \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\end{align}
+
+\textbf{Verification:} $\mathbf{K} \cdot \mathbf{K}^{-1} = \mathbf{I}$
+
+\begin{align}
+\mathbf{K} \mathbf{K}^{-1} &= \begin{pmatrix}
+1 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\end{align}
+
+\textbf{Row 1 of Product:}
+\begin{align}
+\text{Entry }(1,1): &\quad (1)(1) + (1)(0) + (1)(0) = 1 + 0 + 0 = 1 \\
+\text{Entry }(1,2): &\quad (1)(-1) + (1)(1) + (1)(0) = -1 + 1 + 0 = 0 \\
+\text{Entry }(1,3): &\quad (1)(0) + (1)(-1) + (1)(1) = 0 - 1 + 1 = 0
+\end{align}
+
+\textbf{Row 2 of Product:}
+\begin{align}
+\text{Entry }(2,1): &\quad (0)(1) + (1)(0) + (1)(0) = 0 + 0 + 0 = 0 \\
+\text{Entry }(2,2): &\quad (0)(-1) + (1)(1) + (1)(0) = 0 + 1 + 0 = 1 \\
+\text{Entry }(2,3): &\quad (0)(0) + (1)(-1) + (1)(1) = 0 - 1 + 1 = 0
+\end{align}
+
+\textbf{Row 3 of Product:}
+\begin{align}
+\text{Entry }(3,1): &\quad (0)(1) + (0)(0) + (1)(0) = 0 + 0 + 0 = 0 \\
+\text{Entry }(3,2): &\quad (0)(-1) + (0)(1) + (1)(0) = 0 + 0 + 0 = 0 \\
+\text{Entry }(3,3): &\quad (0)(0) + (0)(-1) + (1)(1) = 0 + 0 + 1 = 1
+\end{align}
+
+\textbf{Result:}
+\begin{equation}
+\mathbf{K} \mathbf{K}^{-1} = \begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{pmatrix} = \mathbf{I} \quad \checkmark
+\end{equation}
+
+\subsection{Decryption Example Using the Inverse}
+
+Let's decrypt $\mathbf{C}_1 = \begin{pmatrix} 36 \\ 27 \\ 22 \end{pmatrix}$:
+
+\begin{equation}
+\mathbf{M}_1 = \mathbf{K}^{-1} \mathbf{C}_1 = \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} 36 \\ 27 \\ 22 \end{pmatrix}
+\end{equation}
+
+\textbf{Row 1:} $m_1 = (1)(36) + (-1)(27) + (0)(22) = 36 - 27 + 0 = 9$ \\
+\textbf{Row 2:} $m_2 = (0)(36) + (1)(27) + (-1)(22) = 0 + 27 - 22 = 5$ \\
+\textbf{Row 3:} $m_3 = (0)(36) + (0)(27) + (1)(22) = 0 + 0 + 22 = 22$
+
+\begin{equation}
+\mathbf{M}_1 = \begin{pmatrix} 9 \\ 5 \\ 22 \end{pmatrix} \to \text{``IEV''} \quad (9=I, 5=E, 22=V)
+\end{equation}
+
+\subsection{Complete Decryption of Stanza 3}
+
+Following this process for all 24 vectors yields:
+
+\textbf{Decrypted Stanza 3:}
+\begin{center}
+\fbox{\textit{``I VE MAPPED THE STEPS  I VE TRACED THE LINE  BUT LOGIC S HIT A SUDDEN SNARE''}}
+\end{center}
+
+\subsection{Summary: Part 3}
+
+We have demonstrated:
+\begin{itemize}
+\item Cofactor expansion to compute $\det(\mathbf{K}) = 1$
+\item Computation of all nine cofactors
+\item Transposing the cofactor matrix to get the adjoint
+\item The inversion formula $\mathbf{K}^{-1} = \frac{1}{\det(\mathbf{K})} \text{adj}(\mathbf{K})$
+\item Verification that $\mathbf{K} \mathbf{K}^{-1} = \mathbf{I}$
+\item Full decryption of Stanza 3
+\end{itemize}
+
+\newpage
+
+\section{Part 4: Vector Spaces \& Linear Transformations (Stanza 4)}
+
+\subsection{Learning Objectives}
+
+In this final section, we decrypt \textbf{Stanza 4} while exploring:
+\begin{itemize}
+\item Real vector spaces $\mathbb{R}^3$
+\item Basis and dimension
+\item Rank of a matrix
+\item Linear transformations and their properties
+\item Kernel (null space) and injectivity
+\end{itemize}
+
+\subsection{The Ciphertext for Stanza 4}
+
+Stanza 4 encrypts to 22 vectors:
+
+\begin{align*}
+\mathbf{C}_1 &= \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \quad
+\mathbf{C}_2 = \begin{pmatrix} 60 \\ 40 \\ 13 \end{pmatrix}, \quad
+\mathbf{C}_3 = \begin{pmatrix} 62 \\ 54 \\ 21 \end{pmatrix}, \quad
+\mathbf{C}_4 = \begin{pmatrix} 61 \\ 56 \\ 27 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_5 &= \begin{pmatrix} 51 \\ 30 \\ 15 \end{pmatrix}, \quad
+\mathbf{C}_6 = \begin{pmatrix} 69 \\ 60 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_7 = \begin{pmatrix} 41 \\ 28 \\ 9 \end{pmatrix}, \quad
+\mathbf{C}_8 = \begin{pmatrix} 60 \\ 41 \\ 19 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_9 &= \begin{pmatrix} 35 \\ 32 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{10} = \begin{pmatrix} 54 \\ 36 \\ 13 \end{pmatrix}, \quad
+\mathbf{C}_{11} = \begin{pmatrix} 44 \\ 40 \\ 9 \end{pmatrix}, \quad
+\mathbf{C}_{12} = \begin{pmatrix} 60 \\ 41 \\ 18 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{13} &= \begin{pmatrix} 60 \\ 56 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{14} = \begin{pmatrix} 25 \\ 24 \\ 2 \end{pmatrix}, \quad
+\mathbf{C}_{15} = \begin{pmatrix} 45 \\ 38 \\ 18 \end{pmatrix}, \quad
+\mathbf{C}_{16} = \begin{pmatrix} 58 \\ 39 \\ 8 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{17} &= \begin{pmatrix} 56 \\ 53 \\ 27 \end{pmatrix}, \quad
+\mathbf{C}_{18} = \begin{pmatrix} 64 \\ 38 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{19} = \begin{pmatrix} 60 \\ 41 \\ 14 \end{pmatrix}, \quad
+\mathbf{C}_{20} = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}, \\[0.5em]
+\mathbf{C}_{21} &= \begin{pmatrix} 60 \\ 41 \\ 19 \end{pmatrix}, \quad
+\mathbf{C}_{22} = \begin{pmatrix} 81 \\ 54 \\ 27 \end{pmatrix}
+\end{align*}
+
+\subsection{Vector Spaces: The Plaintext Space}
+
+Both our plaintext and ciphertext vectors exist in the \textbf{real vector space} $\mathbb{R}^3$, though we restrict to integer entries.
+
+\begin{definition}[Vector Space $\mathbb{R}^3$]
+The set of all ordered triples $(x_1, x_2, x_3)$ with real components, equipped with component-wise addition and scalar multiplication.
+\end{definition}
+
+\textbf{Standard Basis for $\mathbb{R}^3$:}
+\begin{equation}
+\mathbf{e}_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}, \quad
+\mathbf{e}_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}, \quad
+\mathbf{e}_3 = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix}
+\end{equation}
+
+These vectors are \textit{linearly independent} and \textit{span} $\mathbb{R}^3$, so:
+\begin{equation}
+\dim(\mathbb{R}^3) = 3
+\end{equation}
+
+\subsection{The Rank of Matrix $\mathbf{K}$}
+
+\begin{definition}[Rank]
+The rank of a matrix is the dimension of its column space (equivalently, the number of linearly independent columns).
+\end{definition}
+
+\begin{proposition}
+The matrix $\mathbf{K}$ has rank 3.
+\end{proposition}
+
+\begin{proof}
+Since $\det(\mathbf{K}) = 1 \neq 0$, the matrix $\mathbf{K}$ is invertible. An invertible $n \times n$ matrix always has rank $n$. Therefore:
+\begin{equation}
+\text{rank}(\mathbf{K}) = 3
+\end{equation}
+
+Alternatively, observe that the three columns of $\mathbf{K}$ are linearly independent because $\mathbf{K}$ is non-singular.
+\end{proof}
+
+\textbf{Significance:} Since $\text{rank}(\mathbf{K}) = 3 = \dim(\mathbb{R}^3)$, the transformation $\mathbf{K}$ maps the entire space $\mathbb{R}^3$ \textit{onto} itself. No dimension is ``lost.''
+
+\subsection{Encryption as a Linear Transformation}
+
+\begin{definition}[Linear Transformation]
+A function $T: \mathbb{R}^3 \to \mathbb{R}^3$ is a linear transformation if for all vectors $\mathbf{u}, \mathbf{v}$ and scalars $c$:
+\begin{align}
+T(\mathbf{u} + \mathbf{v}) &= T(\mathbf{u}) + T(\mathbf{v}) \\
+T(c \mathbf{u}) &= c \, T(\mathbf{u})
+\end{align}
+\end{definition}
+
+Our encryption defines a linear transformation $T_{\mathbf{K}}: \mathbb{R}^3 \to \mathbb{R}^3$ via:
+\begin{equation}
+T_{\mathbf{K}}(\mathbf{M}) = \mathbf{K} \mathbf{M}
+\end{equation}
+
+\textbf{Verification of Linearity:}
+
+\begin{align}
+T_{\mathbf{K}}(\mathbf{M}_1 + \mathbf{M}_2) &= \mathbf{K}(\mathbf{M}_1 + \mathbf{M}_2) \\
+&= \mathbf{K} \mathbf{M}_1 + \mathbf{K} \mathbf{M}_2 \quad \text{(distributive property)} \\
+&= T_{\mathbf{K}}(\mathbf{M}_1) + T_{\mathbf{K}}(\mathbf{M}_2) \quad \checkmark
+\end{align}
+
+\begin{align}
+T_{\mathbf{K}}(c \mathbf{M}) &= \mathbf{K}(c \mathbf{M}) \\
+&= c (\mathbf{K} \mathbf{M}) \quad \text{(associative property)} \\
+&= c \, T_{\mathbf{K}}(\mathbf{M}) \quad \checkmark
+\end{align}
+
+\subsection{The Kernel (Null Space) of $T_{\mathbf{K}}$}
+
+\begin{definition}[Kernel]
+The kernel of a linear transformation $T$ is the set of all vectors that map to the zero vector:
+\begin{equation}
+\ker(T_{\mathbf{K}}) = \{ \mathbf{x} \in \mathbb{R}^3 : T_{\mathbf{K}}(\mathbf{x}) = \mathbf{0} \} = \{ \mathbf{x} : \mathbf{K} \mathbf{x} = \mathbf{0} \}
+\end{equation}
+\end{definition}
+
+\begin{theorem}
+The kernel of $T_{\mathbf{K}}$ is the trivial subspace: $\ker(T_{\mathbf{K}}) = \{ \mathbf{0} \}$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\mathbf{x} \in \ker(T_{\mathbf{K}})$, so $\mathbf{K} \mathbf{x} = \mathbf{0}$.
+
+Multiply both sides by $\mathbf{K}^{-1}$:
+\begin{align}
+\mathbf{K}^{-1} (\mathbf{K} \mathbf{x}) &= \mathbf{K}^{-1} \mathbf{0} \\
+(\mathbf{K}^{-1} \mathbf{K}) \mathbf{x} &= \mathbf{0} \\
+\mathbf{I} \mathbf{x} &= \mathbf{0} \\
+\mathbf{x} &= \mathbf{0}
+\end{align}
+
+Therefore, the only vector in the kernel is $\mathbf{0}$. \qed
+\end{proof}
+
+\textbf{Cryptographic Significance:} Since $\ker(T_{\mathbf{K}}) = \{\mathbf{0}\}$, the transformation is \textit{injective} (one-to-one). This means:
+\begin{itemize}
+\item No two different plaintext vectors encrypt to the same ciphertext.
+\item Decryption is \textit{unique}---there is exactly one plaintext for each ciphertext.
+\item The message is fully recoverable with no ambiguity.
+\end{itemize}
+
+\subsection{Dimension Preservation}
+
+By the Rank-Nullity Theorem:
+\begin{equation}
+\dim(\mathbb{R}^3) = \text{rank}(\mathbf{K}) + \dim(\ker(T_{\mathbf{K}}))
+\end{equation}
+
+Substituting:
+\begin{equation}
+3 = 3 + 0 \quad \checkmark
+\end{equation}
+
+This confirms that the transformation preserves the full three-dimensional structure of the message space.
+
+\subsection{Decryption Example}
+
+Decrypting $\mathbf{C}_1 = \begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}$:
+
+\begin{equation}
+\mathbf{M}_1 = \mathbf{K}^{-1} \mathbf{C}_1 = \begin{pmatrix}
+1 & -1 & 0 \\
+0 & 1 & -1 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix} 33 \\ 13 \\ 5 \end{pmatrix}
+= \begin{pmatrix} 20 \\ 8 \\ 5 \end{pmatrix}
+\to \text{``THE''}
+\end{equation}
+
+\subsection{Complete Decryption of Stanza 4}
+
+Processing all 22 vectors:
+
+\textbf{Decrypted Stanza 4:}
+\begin{center}
+\fbox{\textit{``THE THOUGHT OF US IS THE MISSING BREATH  WHEN YOU SLIP AND FIND THE STAIRS''}}
+\end{center}
+
+\subsection{Summary: Part 4}
+
+We have demonstrated:
+\begin{itemize}
+\item The plaintext and ciphertext exist in the vector space $\mathbb{R}^3$ with dimension 3
+\item The matrix $\mathbf{K}$ has full rank 3, preserving dimensionality
+\item Encryption is a linear transformation $T_{\mathbf{K}}(\mathbf{M}) = \mathbf{K} \mathbf{M}$
+\item The kernel is trivial: $\ker(T_{\mathbf{K}}) = \{\mathbf{0}\}$, ensuring unique decryption
+\item The Rank-Nullity Theorem confirms: $3 = 3 + 0$
+\item Full decryption of Stanza 4
+\end{itemize}
+
+\newpage
+
+\section{Conclusion: The Complete Decrypted Poem}
+
+Assembling all four stanzas, the complete plaintext is revealed:
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{
+\textbf{Stanza 1:} ``The rows are stacked against me now, A sequence I can't quite undo;'' \\[0.5em]
+\textbf{Stanza 2:} ``Since your mouth redefined the sum, The only constant left is you.'' \\[0.5em]
+\textbf{Stanza 3:} ``I've mapped the steps, I've traced the line, But logic's hit a sudden snare---'' \\[0.5em]
+\textbf{Stanza 4:} ``The thought of us is the missing breath, When you slip and find the stairs.''
+}}
+\end{center}
+
+\vspace{1cm}
+
+\subsection{Reflection: Mathematics as the Language of Love}
+
+This project demonstrates that cryptography is not merely about secrecy---it is about \textit{structure}, \textit{transformation}, and \textit{recovery}. The poem itself mirrors the mathematical journey:
+
+\begin{itemize}
+\item \textbf{Stanza 1:} The ``rows stacked against me'' reflect the structure of matrix operations.
+\item \textbf{Stanza 2:} A ``redefined sum'' speaks to the linearity and composition at the heart of linear algebra.
+\item \textbf{Stanza 3:} ``Mapping steps and tracing lines'' evokes the systematic process of Gaussian elimination.
+\item \textbf{Stanza 4:} The ``missing breath'' is the zero vector, the kernel---the absence that defines uniqueness.
+\end{itemize}
+
+Through the unimodular matrix $\mathbf{K}$, we encrypted a romantic message in a form that demands mathematical literacy to decode. Yet the act of decryption---of systematically applying $\mathbf{K}^{-1}$ to each ciphertext vector---becomes an act of \textit{understanding}. To decrypt is to engage deeply with the structure of the message, to see not just the words but the \textit{transformation} that shaped them.
+
+\vspace{0.5cm}
+
+\textit{In the end, love and linear algebra share a common truth: both are about finding the unique solution in a space of infinite possibilities, guided by structure, constrained by logic, and revealed through careful, deliberate transformation.}
+
+\vspace{1cm}
+
+\begin{center}
+\textit{--- The Romantic Professor of Cryptography}
+\end{center}
+
+\end{document}
